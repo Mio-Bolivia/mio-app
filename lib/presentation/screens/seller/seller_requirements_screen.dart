@@ -1,47 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final sellerRequirementsProvider =
-    StateNotifierProvider<SellerRequirementsNotifier, SellerRequirementsState>((
-      ref,
-    ) {
-      return SellerRequirementsNotifier();
-    });
-
-class SellerRequirementsState {
-  final bool identityVerified;
-  final bool bankAccountVerified;
-
-  const SellerRequirementsState({
-    this.identityVerified = false,
-    this.bankAccountVerified = false,
-  });
-
-  bool get allCompleted => identityVerified && bankAccountVerified;
-
-  SellerRequirementsState copyWith({
-    bool? identityVerified,
-    bool? bankAccountVerified,
-  }) {
-    return SellerRequirementsState(
-      identityVerified: identityVerified ?? this.identityVerified,
-      bankAccountVerified: bankAccountVerified ?? this.bankAccountVerified,
-    );
-  }
-}
-
-class SellerRequirementsNotifier
-    extends StateNotifier<SellerRequirementsState> {
-  SellerRequirementsNotifier() : super(const SellerRequirementsState());
-
-  void toggleIdentity() {
-    state = state.copyWith(identityVerified: !state.identityVerified);
-  }
-
-  void toggleBankAccount() {
-    state = state.copyWith(bankAccountVerified: !state.bankAccountVerified);
-  }
-}
+import 'package:go_router/go_router.dart';
+import '../../providers/seller_requirements_provider.dart';
+import '../../../core/network/api_client.dart';
+import '../../../core/network/endpoints/user_endpoints.dart';
+import '../../providers/user_provider.dart';
 
 class SellerRequirementsScreen extends ConsumerWidget {
   const SellerRequirementsScreen({super.key});
@@ -82,9 +45,7 @@ class SellerRequirementsScreen extends ConsumerWidget {
                 detail: 'Verifica tu documento',
                 isCompleted: requisitos.identityVerified,
                 onTap: () {
-                  ref
-                      .read(sellerRequirementsProvider.notifier)
-                      .toggleIdentity();
+                  context.push('/seller/identity-verification');
                 },
               ),
               const SizedBox(height: 16),
@@ -94,9 +55,7 @@ class SellerRequirementsScreen extends ConsumerWidget {
                 detail: 'Donde recibirás tus pagos',
                 isCompleted: requisitos.bankAccountVerified,
                 onTap: () {
-                  ref
-                      .read(sellerRequirementsProvider.notifier)
-                      .toggleBankAccount();
+                  context.push('/seller/bank-account');
                 },
               ),
               const Spacer(),
@@ -104,14 +63,7 @@ class SellerRequirementsScreen extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: requisitos.allCompleted
-                      ? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('¡Felicidades! Ya eres vendedor'),
-                            ),
-                          );
-                          Navigator.of(context).pop();
-                        }
+                      ? () => _becomeSeller(context, ref)
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00C853),
@@ -140,6 +92,33 @@ class SellerRequirementsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _becomeSeller(BuildContext context, WidgetRef ref) async {
+    try {
+      final apiClient = ApiClient.instance;
+      await apiClient.post(UserEndpoints.becomeSeller);
+
+      final userNotifier = ref.read(userProvider.notifier);
+      final currentUser = ref.read(userProvider).user;
+
+      if (currentUser != null) {
+        userNotifier.updateUser(currentUser.copyWith(isSeller: true));
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('¡Felicidades! Ya eres vendedor')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al hacerte vendedor: $e')),
+        );
+      }
+    }
   }
 }
 

@@ -54,6 +54,10 @@ class UserNotifier extends StateNotifier<UserState> {
     );
   }
 
+  void updateUser(User user) {
+    state = state.copyWith(user: user);
+  }
+
   void logout() {
     state = const UserState();
   }

@@ -7,6 +7,8 @@ import '../../presentation/screens/buyer/store_detail_screen.dart';
 import '../../presentation/screens/seller/seller_store_screen.dart';
 import '../../presentation/screens/seller/add_product_screen.dart';
 import '../../presentation/screens/seller/seller_requirements_screen.dart';
+import '../../presentation/screens/seller/identity_verification_screen.dart';
+import '../../presentation/screens/seller/bank_account_screen.dart';
 import '../../presentation/screens/payment/payment_screen.dart';
 import 'route_names.dart';
 
@@ -80,6 +82,14 @@ final routerProvider = GoRouter(
     GoRoute(
       path: '/seller-requirements',
       builder: (context, state) => const SellerRequirementsScreen(),
+    ),
+    GoRoute(
+      path: '/seller/identity-verification',
+      builder: (context, state) => const IdentityVerificationScreen(),
+    ),
+    GoRoute(
+      path: '/seller/bank-account',
+      builder: (context, state) => const BankAccountScreen(),
     ),
     GoRoute(
       path: '/payment',

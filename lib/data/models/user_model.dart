@@ -8,6 +8,9 @@ class User {
   final String countryCode;
   final UserRole role;
   final DateTime createdAt;
+  final String? bankAccount;
+  final String? identityDocumentId;
+  final bool isSeller;
 
   const User({
     required this.id,
@@ -16,6 +19,9 @@ class User {
     required this.countryCode,
     required this.role,
     required this.createdAt,
+    this.bankAccount,
+    this.identityDocumentId,
+    this.isSeller = false,
   });
 
   String get fullPhone => '$countryCode$phone';
@@ -27,6 +33,9 @@ class User {
     String? countryCode,
     UserRole? role,
     DateTime? createdAt,
+    String? bankAccount,
+    String? identityDocumentId,
+    bool? isSeller,
   }) {
     return User(
       id: id ?? this.id,
@@ -35,6 +44,9 @@ class User {
       countryCode: countryCode ?? this.countryCode,
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
+      bankAccount: bankAccount ?? this.bankAccount,
+      identityDocumentId: identityDocumentId ?? this.identityDocumentId,
+      isSeller: isSeller ?? this.isSeller,
     );
   }
 

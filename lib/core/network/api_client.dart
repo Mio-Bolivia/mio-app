@@ -111,6 +111,21 @@ class ApiClient {
     }
   }
 
+  Future<T> postFormData<T>(String path, FormData data) async {
+    try {
+      final response = await _dio.post(
+        path,
+        data: data,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      return response.data as T;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw NetworkException(message: e.toString());
+    }
+  }
+
   void setAuthToken(String token) {
     _dio.options.headers['Authorization'] = 'Bearer $token';
   }

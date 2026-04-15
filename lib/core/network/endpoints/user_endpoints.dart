@@ -13,4 +13,7 @@ class UserEndpoints extends ApiEndpoints {
   static const addPaymentMethod = '/user/payments/add';
   static const notifications = '/user/notifications';
   static const settings = '/user/settings';
+  static const bankAccount = '/user/bank-account';
+  static const identityDocument = '/user/identity-document';
+  static const becomeSeller = '/user/become-seller';
 }
