@@ -1,11 +1,11 @@
 abstract class ApiEndpoints {
   static const String baseUrl = 'https://api.mio.app/v1';
 
-  static String _auth = '/auth';
-  static String _comprador = '/comprador';
-  static String _vendedor = '/vendedor';
-  static String _orden = '/orden';
-  static String _usuario = '/usuario';
+  static final String _auth = '/auth';
+  static final String _comprador = '/comprador';
+  static final String _vendedor = '/vendedor';
+  static final String _orden = '/orden';
+  static final String _usuario = '/usuario';
 
   static String get authBase => _auth;
   static String get compradorBase => _comprador;

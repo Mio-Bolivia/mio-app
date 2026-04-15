@@ -28,16 +28,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
-  void _onCreateAccount() {
+  Future<void> _onCreateAccount() async {
     if (_formKey.currentState!.validate() && _agreedToTerms) {
-      ref
+      await ref
           .read(userProvider.notifier)
           .createAccount(
             name: _nameController.text,
             phone: _phoneController.text,
             countryCode: _selectedCountry.code,
           );
-      context.go('/home');
+      if (mounted) {
+        context.go('/home');
+      }
     } else if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -188,7 +190,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
                 const SizedBox(height: 32),
                 FilledButton(
-                  onPressed: _onCreateAccount,
+                  onPressed: () => _onCreateAccount(),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/endpoints/user_endpoints.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/seller_requirements_provider.dart';
 
@@ -74,31 +71,11 @@ class _IdentityVerificationScreenState
     });
 
     try {
-      final apiClient = ApiClient.instance;
-      final formData = FormData.fromMap({
-        'document': await MultipartFile.fromFile(
-          _imageFile!.path,
-          filename: 'identity_document.jpg',
-        ),
-      });
-
-      final response = await apiClient.postFormData(
-        UserEndpoints.identityDocument,
-        formData,
-      );
-
-      final documentId = response['id'] as String?;
+      final documentId = await ref
+          .read(userProvider.notifier)
+          .uploadIdentityDocument(_imageFile!.path);
 
       if (documentId != null) {
-        final userNotifier = ref.read(userProvider.notifier);
-        final currentUser = ref.read(userProvider).user;
-
-        if (currentUser != null) {
-          userNotifier.updateUser(
-            currentUser.copyWith(identityDocumentId: documentId),
-          );
-        }
-
         ref.read(sellerRequirementsProvider.notifier).setIdentityVerified(true);
 
         if (mounted) {

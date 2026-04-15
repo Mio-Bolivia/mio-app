@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../data/models/product_model.dart';
+import '../../../data/models/store_model.dart';
 import '../../providers/store_provider.dart';
 
 class BuyerScreen extends ConsumerWidget {
@@ -8,60 +10,64 @@ class BuyerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stores = ref.watch(storesProvider);
+    final storesAsync = ref.watch(storesProvider);
     final products = ref.watch(productsProvider);
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Explorar Tiendas',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Encuentra los mejores productos',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: GridView.builder(
+    return storesAsync.when(
+      data: (stores) => Column(
+        children: [
+          Container(
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.85,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Explorar Tiendas',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Encuentra los mejores productos',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                ),
+              ],
             ),
-            itemCount: stores.length,
-            itemBuilder: (context, index) {
-              final store = stores[index];
-              final storeProducts = products
-                  .where((p) => p.storeId == store.id)
-                  .take(3)
-                  .toList();
-              return _StoreCard(store: store, products: storeProducts);
-            },
           ),
-        ),
-      ],
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.85,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: stores.length,
+              itemBuilder: (context, index) {
+                final store = stores[index];
+                final storeProducts = products
+                    .where((p) => p.storeId == store.id)
+                    .take(3)
+                    .toList();
+                return _StoreCard(store: store, products: storeProducts);
+              },
+            ),
+          ),
+        ],
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, _) => const Center(child: Text('Error cargando tiendas')),
     );
   }
 }
 
 class _StoreCard extends StatelessWidget {
-  final dynamic store;
-  final List<dynamic> products;
+  final Store store;
+  final List<Product> products;
 
   const _StoreCard({required this.store, required this.products});
 
@@ -92,7 +98,7 @@ class _StoreCard extends StatelessWidget {
                   Image.network(
                     store.image,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, error, stackTrace) => Container(
                       color: Colors.grey[300],
                       child: const Icon(Icons.store, size: 40),
                     ),
@@ -154,7 +160,7 @@ class _StoreCard extends StatelessWidget {
                                 width: 40,
                                 height: 40,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, error, stackTrace) => Container(
                                   width: 40,
                                   height: 40,
                                   color: Colors.grey[300],

@@ -22,10 +22,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
+  Future<void> _onLogin() async {
     if (_formKey.currentState!.validate()) {
-      ref.read(userProvider.notifier).login(_phoneController.text);
-      context.go('/home');
+      await ref.read(userProvider.notifier).login(_phoneController.text);
+      if (mounted) {
+        context.go('/home');
+      }
     }
   }
 
@@ -91,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 48),
                 FilledButton(
-                  onPressed: _onLogin,
+                  onPressed: () => _onLogin(),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

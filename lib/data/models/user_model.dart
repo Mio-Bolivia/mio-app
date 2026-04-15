@@ -58,6 +58,48 @@ class User {
 
   @override
   int get hashCode => id.hashCode;
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      countryCode: json['countryCode']?.toString() ?? '+57',
+      role: _roleFromString(json['role']?.toString()),
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      bankAccount: json['bankAccount']?.toString(),
+      identityDocumentId: json['identityDocumentId']?.toString(),
+      isSeller: json['isSeller'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      'countryCode': countryCode,
+      'role': role.name,
+      'createdAt': createdAt.toIso8601String(),
+      'bankAccount': bankAccount,
+      'identityDocumentId': identityDocumentId,
+      'isSeller': isSeller,
+    };
+  }
+
+  static UserRole _roleFromString(String? rawRole) {
+    switch (rawRole) {
+      case 'buyer':
+        return UserRole.buyer;
+      case 'seller':
+        return UserRole.seller;
+      case 'both':
+      default:
+        return UserRole.both;
+    }
+  }
 }
 
 enum UserRole { buyer, seller, both }

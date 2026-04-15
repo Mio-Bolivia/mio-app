@@ -41,6 +41,42 @@ class Order {
 
   @override
   int get hashCode => id.hashCode;
+
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id']?.toString() ?? '',
+      product: Product.fromJson((json['product'] as Map<String, dynamic>?) ?? {}),
+      status: _statusFromString(json['status']?.toString()),
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      completedAt: DateTime.tryParse(json['completedAt']?.toString() ?? ''),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product': product.toJson(),
+      'status': status.name,
+      'createdAt': createdAt.toIso8601String(),
+      'completedAt': completedAt?.toIso8601String(),
+    };
+  }
+
+  static OrderStatus _statusFromString(String? rawStatus) {
+    switch (rawStatus) {
+      case 'paid':
+        return OrderStatus.paid;
+      case 'completed':
+        return OrderStatus.completed;
+      case 'cancelled':
+        return OrderStatus.cancelled;
+      case 'pending':
+      default:
+        return OrderStatus.pending;
+    }
+  }
 }
 
 enum OrderStatus { pending, paid, completed, cancelled }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/number_formatter.dart';
+import '../../../data/models/product_model.dart';
 import '../../providers/product_provider.dart';
 
 class StoreDetailScreen extends ConsumerStatefulWidget {
@@ -152,7 +153,7 @@ class _StoreDetailScreenState extends ConsumerState<StoreDetailScreen> {
 }
 
 class _ProductCard extends StatelessWidget {
-  final dynamic product;
+  final Product product;
 
   const _ProductCard({required this.product});
 

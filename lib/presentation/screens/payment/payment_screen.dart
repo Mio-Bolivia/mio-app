@@ -188,12 +188,13 @@ class PaymentScreen extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     final products = ref.read(productProvider).products;
                     final product = products.firstWhere(
                       (p) => p.code == productCode,
                     );
-                    ref.read(orderProvider.notifier).createOrder(product);
+                    await ref.read(orderProvider.notifier).createOrder(product);
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Orden creada exitosamente'),

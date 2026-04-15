@@ -46,4 +46,26 @@ class Product {
 
   @override
   int get hashCode => code.hashCode;
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      code: json['code']?.toString() ?? json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0,
+      available: (json['available'] as num?)?.toInt() ?? 0,
+      image: json['image']?.toString() ?? '',
+      storeId: json['storeId']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'name': name,
+      'price': price,
+      'available': available,
+      'image': image,
+      'storeId': storeId,
+    };
+  }
 }

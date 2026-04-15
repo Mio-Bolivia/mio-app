@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/endpoints/user_endpoints.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/seller_requirements_provider.dart';
 
@@ -32,20 +30,11 @@ class _BankAccountScreenState extends ConsumerState<BankAccountScreen> {
     });
 
     try {
-      final apiClient = ApiClient.instance;
-
-      await apiClient.post(
-        UserEndpoints.bankAccount,
-        data: {'accountNumber': _accountController.text},
-      );
-
-      final userNotifier = ref.read(userProvider.notifier);
-      final currentUser = ref.read(userProvider).user;
-
-      if (currentUser != null) {
-        userNotifier.updateUser(
-          currentUser.copyWith(bankAccount: _accountController.text),
-        );
+      final success = await ref
+          .read(userProvider.notifier)
+          .saveBankAccount(_accountController.text);
+      if (!success) {
+        throw Exception('No se pudo guardar la cuenta');
       }
 
       ref

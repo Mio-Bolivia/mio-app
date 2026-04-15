@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/repositories/user_repository.dart';
 import '../../data/models/user_model.dart';
 
 class UserState {
@@ -18,40 +19,36 @@ class UserState {
 }
 
 class UserNotifier extends StateNotifier<UserState> {
-  UserNotifier() : super(const UserState());
+  final UserRepository _userRepository;
 
-  void login(String phone) {
+  UserNotifier(this._userRepository) : super(const UserState());
+
+  Future<void> login(String phone) async {
     state = state.copyWith(isLoading: true);
-    state = state.copyWith(
-      user: User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: 'User',
-        phone: phone,
-        countryCode: '+57',
-        role: UserRole.both,
-        createdAt: DateTime.now(),
-      ),
-      isLoading: false,
-    );
+    try {
+      final user = await _userRepository.login(phone: phone, countryCode: '+57');
+      state = state.copyWith(user: user, isLoading: false, error: null);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
-  void createAccount({
+  Future<void> createAccount({
     required String name,
     required String phone,
     required String countryCode,
-  }) {
+  }) async {
     state = state.copyWith(isLoading: true);
-    state = state.copyWith(
-      user: User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+    try {
+      final user = await _userRepository.createAccount(
         name: name,
         phone: phone,
         countryCode: countryCode,
-        role: UserRole.both,
-        createdAt: DateTime.now(),
-      ),
-      isLoading: false,
-    );
+      );
+      state = state.copyWith(user: user, isLoading: false, error: null);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
   void updateUser(User user) {
@@ -61,10 +58,71 @@ class UserNotifier extends StateNotifier<UserState> {
   void logout() {
     state = const UserState();
   }
+
+  Future<void> becomeSeller() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _userRepository.becomeSeller();
+      final currentUser = state.user;
+      if (currentUser != null) {
+        state = state.copyWith(
+          user: currentUser.copyWith(isSeller: true),
+          isLoading: false,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: null);
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<String?> uploadIdentityDocument(String imagePath) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final documentId = await _userRepository.uploadIdentityDocument(imagePath);
+      final currentUser = state.user;
+      if (currentUser != null) {
+        state = state.copyWith(
+          user: currentUser.copyWith(identityDocumentId: documentId),
+          isLoading: false,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: null);
+      }
+      return documentId;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return null;
+    }
+  }
+
+  Future<bool> saveBankAccount(String accountNumber) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _userRepository.saveBankAccount(accountNumber);
+      final currentUser = state.user;
+      if (currentUser != null) {
+        state = state.copyWith(
+          user: currentUser.copyWith(bankAccount: accountNumber),
+          isLoading: false,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: null);
+      }
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
 }
 
 final userProvider = StateNotifierProvider<UserNotifier, UserState>((ref) {
-  return UserNotifier();
+  return UserNotifier(ref.read(userRepositoryProvider));
 });
 
 final currentUserProvider = Provider<User?>((ref) {

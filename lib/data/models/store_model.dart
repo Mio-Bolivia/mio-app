@@ -52,4 +52,30 @@ class Store {
 
   @override
   int get hashCode => id.hashCode;
+
+  factory Store.fromJson(Map<String, dynamic> json) {
+    return Store(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      image: json['image']?.toString() ?? '',
+      avatar: json['avatar']?.toString() ?? '',
+      stars: (json['stars'] as num?)?.toDouble() ?? 0,
+      reviews: (json['reviews'] as num?)?.toInt() ?? 0,
+      ownerId: json['ownerId']?.toString(),
+      description: json['description']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'avatar': avatar,
+      'stars': stars,
+      'reviews': reviews,
+      'ownerId': ownerId,
+      'description': description,
+    };
+  }
 }

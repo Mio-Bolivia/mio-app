@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/order_model.dart';
 import '../../data/models/product_model.dart';
+import '../../data/repositories/order_repository.dart';
 
 class OrderState {
   final List<Order> orders;
@@ -17,16 +18,30 @@ class OrderState {
 }
 
 class OrderNotifier extends StateNotifier<OrderState> {
-  OrderNotifier() : super(const OrderState());
+  final OrderRepository _orderRepository;
 
-  void createOrder(Product product) {
-    final order = Order(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      product: product,
-      status: OrderStatus.pending,
-      createdAt: DateTime.now(),
-    );
-    state = state.copyWith(orders: [...state.orders, order]);
+  OrderNotifier(this._orderRepository) : super(const OrderState()) {
+    loadOrders();
+  }
+
+  Future<void> loadOrders() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final orders = await _orderRepository.getOrders();
+      state = state.copyWith(orders: orders, isLoading: false);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> createOrder(Product product) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final order = await _orderRepository.createOrder(product);
+      state = state.copyWith(orders: [...state.orders, order], isLoading: false);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   void updateStatus(String orderId, OrderStatus status) {
@@ -44,7 +59,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
 }
 
 final orderProvider = StateNotifierProvider<OrderNotifier, OrderState>((ref) {
-  return OrderNotifier();
+  return OrderNotifier(ref.read(orderRepositoryProvider));
 });
 
 final ordersListProvider = Provider<List<Order>>((ref) {
