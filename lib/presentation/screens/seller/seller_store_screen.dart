@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/number_formatter.dart';
+import '../../../core/router/route_names.dart';
 import '../../../data/models/product_model.dart';
 import '../../providers/product_provider.dart';
 
@@ -34,15 +35,19 @@ class _SellerStoreScreenState extends ConsumerState<SellerStoreScreen> {
     super.dispose();
   }
 
+  Future<void> _openAddProductScreen() async {
+    await context.pushNamed(RouteNames.addProduct);
+    if (!mounted) return;
+    await ref.read(productProvider.notifier).loadProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(filteredProductsProvider);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/seller/add-product');
-        },
+        onPressed: _openAddProductScreen,
         backgroundColor: const Color(0xFF00C853),
         child: const Icon(Icons.add, color: Colors.white),
       ),

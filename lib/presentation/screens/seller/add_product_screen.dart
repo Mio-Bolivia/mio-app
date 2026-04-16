@@ -12,6 +12,8 @@ class AddProductScreen extends StatefulWidget {
 }
 
 class _AddProductScreenState extends State<AddProductScreen> {
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   final _precioController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final List<XFile> _imagenes = [];
@@ -19,6 +21,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
     _precioController.dispose();
     super.dispose();
   }
@@ -57,8 +61,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         );
         return;
       }
+      final productName = _nameController.text.trim();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Producto agregado exitosamente')),
+        SnackBar(content: Text('$productName agregado a tu tienda')),
       );
       context.pop();
     }
@@ -82,6 +87,94 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00C853).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00C853).withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.inventory_2_outlined,
+                          color: Color(0xFF00C853),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Crea una publicacion atractiva para vender mas rapido.',
+                          style: TextStyle(color: Colors.grey[800], fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Informacion basica',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _nameController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    labelText: 'Nombre del producto',
+                    hintText: 'Ej: Camiseta deportiva unisex',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.sell_outlined),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Ingresa el nombre del producto';
+                    }
+                    if (value.trim().length < 3) {
+                      return 'El nombre debe tener al menos 3 caracteres';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 4,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    labelText: 'Descripcion',
+                    hintText:
+                        'Agrega una descripcion del producto, color, talla, material y demas detalles importantes.',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(bottom: 64),
+                      child: Icon(Icons.description_outlined),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Ingresa una descripcion';
+                    }
+                    if (value.trim().length < 20) {
+                      return 'Agrega mas detalle para ayudar al comprador';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 28),
                 Text(
                   'Fotos del producto',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -249,13 +342,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Agregar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.storefront_outlined, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Agregar a mi tienda',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Tip: mientras mas clara sea la informacion, mas confianza genera tu producto.',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ],

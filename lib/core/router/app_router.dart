@@ -77,6 +77,7 @@ final routerProvider = GoRouter(
     ),
     GoRoute(
       path: '/seller/add-product',
+      name: RouteNames.addProduct,
       builder: (context, state) => const AddProductScreen(),
     ),
     GoRoute(
