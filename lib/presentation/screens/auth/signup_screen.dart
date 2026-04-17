@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/models/user_model.dart';
 import '../../providers/user_provider.dart';
 import 'terms_screen.dart';
 
@@ -15,16 +13,15 @@ class SignupScreen extends ConsumerStatefulWidget {
 }
 
 class _SignupScreenState extends ConsumerState<SignupScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _agreedToTerms = false;
-  CountryCode _selectedCountry = CountryCode.available.first;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -33,9 +30,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       await ref
           .read(userProvider.notifier)
           .createAccount(
-            name: _nameController.text,
-            phone: _phoneController.text,
-            countryCode: _selectedCountry.code,
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
           );
       if (mounted) {
         context.go('/home');
@@ -83,75 +79,46 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
-                  controller: _nameController,
-                  textCapitalization: TextCapitalization.words,
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: 'Email',
+                    hintText: 'correo@ejemplo.com',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    prefixIcon: const Icon(Icons.person),
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Please enter your email';
+                    }
+                    final emailRegex = RegExp(
+                      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                    );
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Please enter a valid email';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: DropdownButton<CountryCode>(
-                        value: _selectedCountry,
-                        underline: const SizedBox(),
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        items: CountryCode.available.map((country) {
-                          return DropdownMenuItem(
-                            value: country,
-                            child: Text('${country.flag} ${country.code}'),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _selectedCountry = value);
-                          }
-                        },
-                      ),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                        decoration: InputDecoration(
-                          labelText: 'Phone Number',
-                          hintText: '3001234567',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your phone number';
-                          }
-                          if (value.length < 10) {
-                            return 'The number must have 10 digits';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
+                    prefixIcon: const Icon(Icons.lock_outline),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 Row(

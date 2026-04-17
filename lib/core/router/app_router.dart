@@ -3,6 +3,7 @@ import '../../presentation/screens/auth/splash_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/signup_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
+import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/buyer/store_detail_screen.dart';
 import '../../presentation/screens/seller/seller_store_screen.dart';
 import '../../presentation/screens/seller/add_product_screen.dart';
@@ -34,6 +35,11 @@ final routerProvider = GoRouter(
       path: '/home',
       name: RouteNames.home,
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      name: RouteNames.profile,
+      builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
       path: '/store',

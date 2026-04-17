@@ -3,15 +3,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
+import '../../core/network/endpoints/auth_endpoints.dart';
 import '../../core/network/endpoints/user_endpoints.dart';
 import '../models/user_model.dart';
 
 abstract class UserRepository {
-  Future<User> login({required String phone, required String countryCode});
-  Future<User> createAccount({
-    required String name,
-    required String phone,
-    required String countryCode,
+  Future<User> login({required String email, required String password});
+  Future<User> createAccount({required String email, required String password});
+  Future<User> updateProfile({
+    String? name,
+    String? phone,
+    String? bankAccount,
   });
   Future<void> becomeSeller();
   Future<String> uploadIdentityDocument(String imagePath);
@@ -22,12 +24,11 @@ class MockUserRepository implements UserRepository {
   User? _currentUser;
 
   @override
-  Future<User> login({required String phone, required String countryCode}) async {
+  Future<User> login({required String email, required String password}) async {
     _currentUser = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: 'User',
-      phone: phone,
-      countryCode: countryCode,
+      email: email,
+      password: password,
       role: UserRole.both,
       createdAt: DateTime.now(),
     );
@@ -36,17 +37,29 @@ class MockUserRepository implements UserRepository {
 
   @override
   Future<User> createAccount({
-    required String name,
-    required String phone,
-    required String countryCode,
+    required String email,
+    required String password,
   }) async {
     _currentUser = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      phone: phone,
-      countryCode: countryCode,
+      email: email,
+      password: password,
       role: UserRole.both,
       createdAt: DateTime.now(),
+    );
+    return _currentUser!;
+  }
+
+  @override
+  Future<User> updateProfile({
+    String? name,
+    String? phone,
+    String? bankAccount,
+  }) async {
+    _currentUser = _currentUser?.copyWith(
+      name: name,
+      phone: phone,
+      bankAccount: bankAccount,
     );
     return _currentUser!;
   }
@@ -69,10 +82,10 @@ class ApiUserRepository implements UserRepository {
   ApiUserRepository(this._apiClient);
 
   @override
-  Future<User> login({required String phone, required String countryCode}) async {
+  Future<User> login({required String email, required String password}) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
-      UserEndpoints.myProfile,
-      data: {'phone': phone, 'countryCode': countryCode},
+      AuthEndpoints.login,
+      data: {'email': email, 'password': password},
     );
     final payload = _extractMapPayload(response);
     return User.fromJson(payload);
@@ -80,13 +93,30 @@ class ApiUserRepository implements UserRepository {
 
   @override
   Future<User> createAccount({
-    required String name,
-    required String phone,
-    required String countryCode,
+    required String email,
+    required String password,
   }) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
       UserEndpoints.updateProfile,
-      data: {'name': name, 'phone': phone, 'countryCode': countryCode},
+      data: {'email': email, 'password': password},
+    );
+    final payload = _extractMapPayload(response);
+    return User.fromJson(payload);
+  }
+
+  @override
+  Future<User> updateProfile({
+    String? name,
+    String? phone,
+    String? bankAccount,
+  }) async {
+    final response = await _apiClient.post<Map<String, dynamic>>(
+      UserEndpoints.updateProfile,
+      data: {
+        if (name != null) 'name': name,
+        if (phone != null) 'phone': phone,
+        if (bankAccount != null) 'bankAccount': bankAccount,
+      },
     );
     final payload = _extractMapPayload(response);
     return User.fromJson(payload);

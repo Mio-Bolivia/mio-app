@@ -23,10 +23,13 @@ class UserNotifier extends StateNotifier<UserState> {
 
   UserNotifier(this._userRepository) : super(const UserState());
 
-  Future<void> login(String phone) async {
+  Future<void> login({required String email, required String password}) async {
     state = state.copyWith(isLoading: true);
     try {
-      final user = await _userRepository.login(phone: phone, countryCode: '+57');
+      final user = await _userRepository.login(
+        email: email,
+        password: password,
+      );
       state = state.copyWith(user: user, isLoading: false, error: null);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -34,16 +37,14 @@ class UserNotifier extends StateNotifier<UserState> {
   }
 
   Future<void> createAccount({
-    required String name,
-    required String phone,
-    required String countryCode,
+    required String email,
+    required String password,
   }) async {
     state = state.copyWith(isLoading: true);
     try {
       final user = await _userRepository.createAccount(
-        name: name,
-        phone: phone,
-        countryCode: countryCode,
+        email: email,
+        password: password,
       );
       state = state.copyWith(user: user, isLoading: false, error: null);
     } catch (e) {
@@ -53,6 +54,24 @@ class UserNotifier extends StateNotifier<UserState> {
 
   void updateUser(User user) {
     state = state.copyWith(user: user);
+  }
+
+  Future<void> updateProfile({
+    String? name,
+    String? phone,
+    String? bankAccount,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final user = await _userRepository.updateProfile(
+        name: name,
+        phone: phone,
+        bankAccount: bankAccount,
+      );
+      state = state.copyWith(user: user, isLoading: false, error: null);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
   }
 
   void logout() {
@@ -81,7 +100,9 @@ class UserNotifier extends StateNotifier<UserState> {
   Future<String?> uploadIdentityDocument(String imagePath) async {
     state = state.copyWith(isLoading: true);
     try {
-      final documentId = await _userRepository.uploadIdentityDocument(imagePath);
+      final documentId = await _userRepository.uploadIdentityDocument(
+        imagePath,
+      );
       final currentUser = state.user;
       if (currentUser != null) {
         state = state.copyWith(

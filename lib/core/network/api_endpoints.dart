@@ -1,5 +1,5 @@
 abstract class ApiEndpoints {
-  static const String baseUrl = 'https://api.mio.app/v1';
+  static const String baseUrl = 'http://localhost:3000';
 
   static const String _auth = '/auth';
   static const String _tiendas = '/tiendas';

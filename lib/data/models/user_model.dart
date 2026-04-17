@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 @immutable
 class User {
   final String id;
-  final String name;
-  final String phone;
-  final String countryCode;
+  final String email;
+  final String password;
+  final String? name;
+  final String? phone;
+  final String? avatarUrl;
   final UserRole role;
   final DateTime createdAt;
   final String? bankAccount;
@@ -14,23 +16,25 @@ class User {
 
   const User({
     required this.id,
-    required this.name,
-    required this.phone,
-    required this.countryCode,
+    required this.email,
+    required this.password,
     required this.role,
     required this.createdAt,
+    this.name,
+    this.phone,
+    this.avatarUrl,
     this.bankAccount,
     this.identityDocumentId,
     this.isSeller = false,
   });
 
-  String get fullPhone => '$countryCode$phone';
-
   User copyWith({
     String? id,
+    String? email,
+    String? password,
     String? name,
     String? phone,
-    String? countryCode,
+    String? avatarUrl,
     UserRole? role,
     DateTime? createdAt,
     String? bankAccount,
@@ -39,9 +43,11 @@ class User {
   }) {
     return User(
       id: id ?? this.id,
+      email: email ?? this.email,
+      password: password ?? this.password,
       name: name ?? this.name,
       phone: phone ?? this.phone,
-      countryCode: countryCode ?? this.countryCode,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
       bankAccount: bankAccount ?? this.bankAccount,
@@ -62,9 +68,11 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
-      phone: json['phone']?.toString() ?? '',
-      countryCode: json['countryCode']?.toString() ?? '+57',
+      email: json['email']?.toString() ?? '',
+      password: json['password']?.toString() ?? '',
+      name: json['name']?.toString(),
+      phone: json['phone']?.toString(),
+      avatarUrl: json['avatarUrl']?.toString(),
       role: _roleFromString(json['role']?.toString()),
       createdAt:
           DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
@@ -78,9 +86,11 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'email': email,
+      'password': password,
       'name': name,
       'phone': phone,
-      'countryCode': countryCode,
+      'avatarUrl': avatarUrl,
       'role': role.name,
       'createdAt': createdAt.toIso8601String(),
       'bankAccount': bankAccount,
