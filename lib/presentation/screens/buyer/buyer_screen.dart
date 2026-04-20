@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/models/store_model.dart';
 import '../../providers/store_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class BuyerScreen extends ConsumerWidget {
   const BuyerScreen({super.key});
@@ -161,14 +162,16 @@ class _EmptyStoresViewState extends State<_EmptyStoresView>
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
               ),
               const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: widget.onRefresh,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Recargar'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: MioPrimaryButton(
+                  label: 'Recargar',
+                  onPressed: widget.onRefresh,
+                  showArrow: false,
+                  leading: const Icon(
+                    Icons.refresh_rounded,
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
               ),
@@ -242,15 +245,18 @@ class _ErrorViewState extends State<_ErrorView>
                 ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: widget.onRetry,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: MioPrimaryButton(
+                  label: 'Reintentar',
+                  onPressed: widget.onRetry,
+                  showArrow: false,
+                  showGlow: false,
+                  backgroundColor: Colors.red.shade600,
+                  leading: const Icon(
+                    Icons.refresh_rounded,
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
               ),

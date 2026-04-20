@@ -1,3 +1,4 @@
+import '../auth/secure_token_storage.dart';
 import '../network/api_client.dart';
 
 class AppLifecycleService {
@@ -10,7 +11,9 @@ class AppLifecycleService {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    ApiClient.instance.initialize();
+    final tokenStorage = SecureTokenStorage.instance;
+    ApiClient.instance.initialize(tokenStorage: tokenStorage);
+    await tokenStorage.preload();
 
     _isInitialized = true;
   }

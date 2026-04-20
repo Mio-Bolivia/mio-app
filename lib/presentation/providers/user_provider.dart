@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/auth/secure_token_storage.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../data/models/user_model.dart';
 
@@ -60,6 +61,7 @@ class UserNotifier extends StateNotifier<UserState> {
     String? name,
     String? phone,
     String? bankAccount,
+    String? shippingAddress,
   }) async {
     state = state.copyWith(isLoading: true);
     try {
@@ -67,6 +69,7 @@ class UserNotifier extends StateNotifier<UserState> {
         name: name,
         phone: phone,
         bankAccount: bankAccount,
+        shippingAddress: shippingAddress,
       );
       state = state.copyWith(user: user, isLoading: false, error: null);
     } catch (e) {
@@ -74,7 +77,8 @@ class UserNotifier extends StateNotifier<UserState> {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await SecureTokenStorage.instance.clearAccessToken();
     state = const UserState();
   }
 

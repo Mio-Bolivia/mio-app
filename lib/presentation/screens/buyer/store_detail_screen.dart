@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/number_formatter.dart';
 import '../../../data/models/product_model.dart';
 import '../../providers/product_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class StoreDetailScreen extends ConsumerStatefulWidget {
   final String storeName;
@@ -108,23 +110,13 @@ class _StoreDetailScreenState extends ConsumerState<StoreDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  MioTextField(
                     controller: _searchController,
+                    hintText: 'Buscar productos…',
+                    prefixIcon: Icons.search_rounded,
                     onChanged: (value) {
                       ref.read(productProvider.notifier).setSearchQuery(value);
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Buscar productos...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -240,7 +232,8 @@ class _ProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      FilledButton(
+                      MioPrimaryButton(
+                        label: 'MIO',
                         onPressed: () {
                           context.push(
                             '/payment',
@@ -252,24 +245,15 @@ class _ProductCard extends StatelessWidget {
                             },
                           );
                         },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF00C853),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          minimumSize: Size.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                        showArrow: false,
+                        showGlow: false,
+                        fullWidth: false,
+                        fontSize: 12,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
                         ),
-                        child: const Text(
-                          'MIO',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
+                        backgroundColor: AppColors.secondary,
                       ),
                     ],
                   ),

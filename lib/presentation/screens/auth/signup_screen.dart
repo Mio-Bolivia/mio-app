@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../providers/user_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 import 'terms_screen.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _agreedToTerms = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -26,126 +28,138 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   Future<void> _onCreateAccount() async {
-    if (_formKey.currentState!.validate() && _agreedToTerms) {
-      await ref
-          .read(userProvider.notifier)
-          .createAccount(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
-      if (mounted) {
-        context.go('/home');
-      }
-    } else if (!_agreedToTerms) {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('You must agree to the Terms and Privacy Policy'),
+          content: Text(
+            'Debes aceptar los términos y la política de privacidad',
+          ),
         ),
       );
+      return;
+    }
+    await ref
+        .read(userProvider.notifier)
+        .createAccount(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+    if (mounted) {
+      context.go('/home');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded),
+          color: const Color(0xFF111827),
           onPressed: () => context.go('/login'),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Create Account',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Crear cuenta',
                   textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Join us and start your journey',
+                  'Únete y empieza a comprar y vender',
+                  textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                  textAlign: TextAlign.center,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
+                MioTextField(
                   controller: _emailController,
+                  label: 'Email',
+                  hintText: 'correo@ejemplo.com',
+                  prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'correo@ejemplo.com',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
+                  textInputAction: TextInputAction.next,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Ingresa tu email';
                     }
-                    final emailRegex = RegExp(
-                      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                    );
+                    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email';
+                      return 'Email no válido';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
+                const SizedBox(height: 18),
+                MioTextField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  label: 'Contraseña',
+                  hintText: '••••••••',
+                  prefixIcon: Icons.lock_outline_rounded,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  suffixIcon: IconButton(
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: Colors.grey.shade600,
                     ),
-                    prefixIcon: const Icon(Icons.lock_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Ingresa tu contraseña';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Checkbox(
                       value: _agreedToTerms,
+                      activeColor: AppColors.formBlue,
                       onChanged: (value) {
                         setState(() => _agreedToTerms = value ?? false);
                       },
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => showDialog(
+                        onTap: () => showDialog<void>(
                           context: context,
                           builder: (context) => const TermsScreen(),
                         ),
                         child: RichText(
                           text: TextSpan(
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: const Color(0xFF374151)),
                             children: [
-                              const TextSpan(text: 'I agree to the '),
-                              TextSpan(
-                                text: 'Terms and Privacy Policy',
+                              const TextSpan(text: 'Acepto los '),
+                              const TextSpan(
+                                text: 'términos y la política de privacidad',
                                 style: TextStyle(
-                                  color:
-                                      AppTheme.lightTheme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.formBlue,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ],
@@ -155,59 +169,76 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
-                FilledButton(
-                  onPressed: () => _onCreateAccount(),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Create Account',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                const SizedBox(height: 28),
+                MioPrimaryButton(
+                  label: 'Crear cuenta',
+                  onPressed: _onCreateAccount,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 Row(
                   children: [
-                    const Expanded(child: Divider()),
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Text(
-                        'Or continue with',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                        'O CONTINUAR CON',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.6,
+                          color: Colors.grey.shade500,
                         ),
                       ),
                     ),
-                    const Expanded(child: Divider()),
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    MioSocialButton(
+                      label: 'Google',
+                      icon: Icon(Icons.g_mobiledata_rounded, size: 22),
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Próximamente')),
+                          ),
+                    ),
+                    const SizedBox(width: 12),
+                    MioSocialButton(
+                      label: 'Apple',
+                      icon: Icon(Icons.apple, size: 22),
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Próximamente')),
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account?',
+                      '¿Ya tienes cuenta?',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
                       onPressed: () => context.go('/login'),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                       ),
-                      child: Text(
-                        'Sing in',
+                      child: const Text(
+                        'Iniciar sesión',
                         style: TextStyle(
-                          color: AppTheme.lightTheme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                          color: AppColors.formBlue,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),

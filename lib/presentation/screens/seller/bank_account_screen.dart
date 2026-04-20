@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/seller_requirements_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class BankAccountScreen extends ConsumerStatefulWidget {
   const BankAccountScreen({super.key});
@@ -96,17 +98,13 @@ class _BankAccountScreenState extends ConsumerState<BankAccountScreen> {
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
+                MioTextField(
                   controller: _accountController,
+                  label: 'Número de cuenta',
+                  hintText: 'Ingresa tu número de cuenta',
+                  prefixIcon: Icons.account_balance_outlined,
+                  enabled: !isCompleted,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Número de cuenta',
-                    hintText: 'Ingresa tu número de cuenta',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.account_balance),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ingresa un número de cuenta';
@@ -118,38 +116,17 @@ class _BankAccountScreenState extends ConsumerState<BankAccountScreen> {
                   },
                 ),
                 const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isCompleted || _isLoading
-                        ? null
-                        : _saveBankAccount,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00C853),
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.grey[300],
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            isCompleted ? 'Cuenta Guardada' : 'Aceptar',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
+                MioPrimaryButton(
+                  label: isCompleted ? 'Cuenta guardada' : 'Aceptar',
+                  onPressed: isCompleted || _isLoading
+                      ? null
+                      : _saveBankAccount,
+                  isLoading: _isLoading,
+                  showArrow: false,
+                  showGlow: false,
+                  backgroundColor: isCompleted
+                      ? Colors.grey.shade400
+                      : AppColors.secondary,
                 ),
                 const SizedBox(height: 16),
               ],

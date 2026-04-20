@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../providers/user_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +17,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -37,7 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error al iniciar sesión: ${userState.error}'),
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.red.shade700,
             ),
           );
         }
@@ -50,114 +53,157 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 80),
-                Icon(
-                  Icons.flutter_dash,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 72),
                 Text(
-                  'Bienvenido a ${AppConstants.appName}',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  AppConstants.appName,
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: AppColors.formBlue,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Bienvenido',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Ingresa tu correo y contraseña para continuar',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'correo@ejemplo.com',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.email_outlined),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                    height: 1.35,
                   ),
+                ),
+                const SizedBox(height: 40),
+                MioTextField(
+                  controller: _emailController,
+                  label: 'Email',
+                  hintText: 'correo@ejemplo.com',
+                  prefixIcon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu email';
                     }
                     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Ingresa un email valido';
+                      return 'Ingresa un email válido';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
+                const SizedBox(height: 18),
+                MioTextField(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  label: 'Contraseña',
+                  hintText: '••••••••',
+                  prefixIcon: Icons.lock_outline_rounded,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.password],
+                  suffixIcon: IconButton(
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: Colors.grey.shade600,
                     ),
-                    prefixIcon: const Icon(Icons.lock_outline),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu password';
+                      return 'Por favor ingresa tu contraseña';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 48),
-                FilledButton(
-                  onPressed: () => _onLogin(),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 36),
+                MioPrimaryButton(label: 'Iniciar sesión', onPressed: _onLogin),
+                const SizedBox(height: 28),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Text(
+                        'O CONTINUAR CON',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.6,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Login / Continuar',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
+                  ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    MioSocialButton(
+                      label: 'Google',
+                      icon: Icon(Icons.g_mobiledata_rounded, size: 22),
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Próximamente')),
+                          ),
+                    ),
+                    const SizedBox(width: 12),
+                    MioSocialButton(
+                      label: 'Apple',
+                      icon: Icon(Icons.apple, size: 22),
+                      onPressed: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Próximamente')),
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account yet?",
+                      '¿No tienes cuenta?',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
                       onPressed: () => context.go('/signup'),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                       ),
-                      child: Text(
-                        'Create Account',
+                      child: const Text(
+                        'Crear cuenta',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                          color: AppColors.formBlue,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),

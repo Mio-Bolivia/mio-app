@@ -5,6 +5,7 @@ import '../../../core/utils/number_formatter.dart';
 import '../../../core/router/route_names.dart';
 import '../../../data/models/product_model.dart';
 import '../../providers/product_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class SellerStoreScreen extends ConsumerStatefulWidget {
   final String storeName;
@@ -120,23 +121,13 @@ class _SellerStoreScreenState extends ConsumerState<SellerStoreScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  MioTextField(
                     controller: _searchController,
+                    hintText: 'Buscar productos…',
+                    prefixIcon: Icons.search_rounded,
                     onChanged: (value) {
                       ref.read(productProvider.notifier).setSearchQuery(value);
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Buscar productos...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                    ),
                   ),
                 ],
               ),

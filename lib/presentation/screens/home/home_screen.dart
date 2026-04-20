@@ -1,88 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../providers/user_provider.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../widgets/mio_home_header.dart';
 import '../seller/seller_screen.dart';
 import '../buyer/buyer_screen.dart';
 import '../orders/orders_screen.dart';
+import '../profile/account_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 1;
+
+  void _onBellTap(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('¡Notificaciones no implementadas aún!'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider).user;
-
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Row(
+      backgroundColor: AppColors.surfaceMuted,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(width: 16),
-            Icon(Icons.store, color: AppTheme.lightTheme.colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(
-              AppConstants.appName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.lightTheme.colorScheme.primary,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 4),
+              child: MioHomeHeader(onBellTap: () => _onBellTap(context)),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: IndexedStack(
+                index: _currentIndex,
+                children: const [
+                  SellerScreen(),
+                  BuyerScreen(),
+                  OrdersScreen(),
+                  AccountScreen(),
+                ],
               ),
             ),
           ],
         ),
-        actions: [
-          GestureDetector(
-            onTap: () => context.push('/profile'),
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: AppTheme.lightTheme.colorScheme.secondary,
-                backgroundImage: user?.avatarUrl != null
-                    ? NetworkImage(user!.avatarUrl!)
-                    : null,
-                child: user?.avatarUrl == null
-                    ? const Icon(Icons.person, size: 18, color: Colors.white)
-                    : null,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: const [SellerScreen(), BuyerScreen(), OrdersScreen()],
       ),
       bottomNavigationBar: NavigationBar(
+        height: 68,
+        backgroundColor: Colors.white,
+        indicatorColor: AppColors.primary.withValues(alpha: 0.15),
         selectedIndex: _currentIndex,
-        indicatorColor: AppTheme.lightTheme.colorScheme.primary,
         onDestinationSelected: (index) {
           setState(() => _currentIndex = index);
         },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.store_outlined),
-            selectedIcon: Icon(Icons.store),
+            selectedIcon: Icon(Icons.store_rounded),
             label: 'Vendedor',
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
+            selectedIcon: Icon(Icons.shopping_cart_rounded),
             label: 'Comprador',
           ),
           NavigationDestination(
             icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
             label: 'Órdenes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: 'Cuenta',
           ),
         ],
       ),

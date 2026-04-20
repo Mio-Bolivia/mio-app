@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -99,7 +101,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00C853).withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFF00C853,
+                          ).withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -111,7 +115,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       Expanded(
                         child: Text(
                           'Crea una publicacion atractiva para vender mas rapido.',
-                          style: TextStyle(color: Colors.grey[800], fontSize: 14),
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -125,17 +132,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                TextFormField(
+                MioTextField(
                   controller: _nameController,
+                  label: 'Nombre del producto',
+                  hintText: 'Ej: Camiseta deportiva unisex',
+                  prefixIcon: Icons.sell_outlined,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: 'Nombre del producto',
-                    hintText: 'Ej: Camiseta deportiva unisex',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.sell_outlined),
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Ingresa el nombre del producto';
@@ -146,24 +148,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
+                const SizedBox(height: 18),
+                MioTextField(
                   controller: _descriptionController,
+                  label: 'Descripción',
+                  hintText:
+                      'Color, talla, material y demás detalles importantes.',
+                  prefixIcon: Icons.description_outlined,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: 'Descripcion',
-                    hintText:
-                        'Agrega una descripcion del producto, color, talla, material y demas detalles importantes.',
-                    alignLabelWithHint: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(bottom: 64),
-                      child: Icon(Icons.description_outlined),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Ingresa una descripcion';
@@ -307,17 +300,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                TextFormField(
+                MioTextField(
                   controller: _precioController,
+                  label: 'Precio',
+                  hintText: '0.00',
+                  prefixText: 'Bs. ',
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    hintText: '0.00',
-                    prefixText: 'Bs. ',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ingresa el precio';
@@ -329,33 +318,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 48),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _addProduct,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00C853),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.storefront_outlined, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Agregar a mi tienda',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 36),
+                MioPrimaryButton(
+                  label: 'Agregar a mi tienda',
+                  onPressed: _addProduct,
+                  showArrow: false,
+                  showGlow: false,
+                  backgroundColor: AppColors.secondary,
+                  leading: const Icon(
+                    Icons.storefront_outlined,
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(height: 12),

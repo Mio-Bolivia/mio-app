@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/auth/auth_token_parser.dart';
+import '../../core/auth/secure_token_storage.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/endpoints/auth_endpoints.dart';
@@ -14,6 +16,7 @@ abstract class UserRepository {
     String? name,
     String? phone,
     String? bankAccount,
+    String? shippingAddress,
   });
   Future<void> becomeSeller();
   Future<String> uploadIdentityDocument(String imagePath);
@@ -55,11 +58,13 @@ class MockUserRepository implements UserRepository {
     String? name,
     String? phone,
     String? bankAccount,
+    String? shippingAddress,
   }) async {
     _currentUser = _currentUser?.copyWith(
       name: name,
       phone: phone,
       bankAccount: bankAccount,
+      shippingAddress: shippingAddress,
     );
     return _currentUser!;
   }
@@ -78,8 +83,16 @@ class MockUserRepository implements UserRepository {
 
 class ApiUserRepository implements UserRepository {
   final ApiClient _apiClient;
+  final SecureTokenStorage _tokenStorage;
 
-  ApiUserRepository(this._apiClient);
+  ApiUserRepository(this._apiClient, this._tokenStorage);
+
+  Future<void> _persistTokenIfPresent(Map<String, dynamic> response) async {
+    final token = AuthTokenParser.extract(response);
+    if (token != null) {
+      await _tokenStorage.writeAccessToken(token);
+    }
+  }
 
   @override
   Future<User> login({required String email, required String password}) async {
@@ -87,6 +100,7 @@ class ApiUserRepository implements UserRepository {
       AuthEndpoints.login,
       data: {'email': email, 'password': password},
     );
+    await _persistTokenIfPresent(response);
     final payload = _extractMapPayload(response);
     return User.fromJson(payload);
   }
@@ -97,9 +111,10 @@ class ApiUserRepository implements UserRepository {
     required String password,
   }) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
-      UserEndpoints.updateProfile,
+      AuthEndpoints.register,
       data: {'email': email, 'password': password},
     );
+    await _persistTokenIfPresent(response);
     final payload = _extractMapPayload(response);
     return User.fromJson(payload);
   }
@@ -109,13 +124,15 @@ class ApiUserRepository implements UserRepository {
     String? name,
     String? phone,
     String? bankAccount,
+    String? shippingAddress,
   }) async {
     final response = await _apiClient.post<Map<String, dynamic>>(
       UserEndpoints.updateProfile,
       data: {
-        if (name != null) 'name': name,
-        if (phone != null) 'phone': phone,
-        if (bankAccount != null) 'bankAccount': bankAccount,
+        'name': ?name,
+        'phone': ?phone,
+        'bankAccount': ?bankAccount,
+        'shippingAddress': ?shippingAddress,
       },
     );
     final payload = _extractMapPayload(response);
@@ -162,5 +179,8 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   if (AppConstants.useMockRepositories) {
     return MockUserRepository();
   }
-  return ApiUserRepository(ApiClient.instance);
+  return ApiUserRepository(
+    ApiClient.instance,
+    SecureTokenStorage.instance,
+  );
 });

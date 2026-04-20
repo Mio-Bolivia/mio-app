@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/seller_requirements_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class IdentityVerificationScreen extends ConsumerStatefulWidget {
   const IdentityVerificationScreen({super.key});
@@ -168,38 +170,13 @@ class _IdentityVerificationScreenState
                 ),
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isCompleted || _isLoading ? null : _uploadDocument,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C853),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[300],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          isCompleted
-                              ? 'Documento Verificado'
-                              : 'Subir Documento',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+              MioPrimaryButton(
+                label: isCompleted ? 'Documento verificado' : 'Subir documento',
+                onPressed: isCompleted || _isLoading ? null : _uploadDocument,
+                isLoading: _isLoading,
+                showArrow: false,
+                showGlow: false,
+                backgroundColor: AppColors.secondary,
               ),
               const SizedBox(height: 16),
             ],

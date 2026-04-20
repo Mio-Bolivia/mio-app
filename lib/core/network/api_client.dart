@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../auth/secure_token_storage.dart';
 import 'api_exception.dart';
 import 'api_endpoints.dart';
 
@@ -14,8 +15,10 @@ class ApiClient {
     return _instance!;
   }
 
-  void initialize() {
+  void initialize({SecureTokenStorage? tokenStorage}) {
     if (_isInitialized) return;
+
+    final storage = tokenStorage ?? SecureTokenStorage.instance;
 
     _dio = Dio(
       BaseOptions(
@@ -30,7 +33,25 @@ class ApiClient {
     );
 
     _dio.interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true),
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await storage.readAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          } else {
+            options.headers.remove('Authorization');
+          }
+          handler.next(options);
+        },
+      ),
+    );
+
+    _dio.interceptors.add(
+      LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        requestHeader: false,
+      ),
     );
 
     _isInitialized = true;
@@ -124,13 +145,5 @@ class ApiClient {
     } catch (e) {
       throw NetworkException(message: e.toString());
     }
-  }
-
-  void setAuthToken(String token) {
-    _dio.options.headers['Authorization'] = 'Bearer $token';
-  }
-
-  void clearAuthToken() {
-    _dio.options.headers.remove('Authorization');
   }
 }

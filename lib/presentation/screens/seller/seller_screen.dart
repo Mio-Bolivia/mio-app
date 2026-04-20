@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class SellerScreen extends StatelessWidget {
   const SellerScreen({super.key});
@@ -35,25 +37,12 @@ class _SellerRequirementsView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                context.push('/seller-requirements');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00C853),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Convertirme en Vendedor',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+            MioPrimaryButton(
+              label: 'Convertirme en vendedor',
+              onPressed: () => context.push('/seller-requirements'),
+              showArrow: false,
+              showGlow: false,
+              backgroundColor: AppColors.secondary,
             ),
           ],
         ),

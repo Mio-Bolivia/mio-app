@@ -11,6 +11,7 @@ class User {
   final UserRole role;
   final DateTime createdAt;
   final String? bankAccount;
+  final String? shippingAddress;
   final String? identityDocumentId;
   final bool isSeller;
 
@@ -24,6 +25,7 @@ class User {
     this.phone,
     this.avatarUrl,
     this.bankAccount,
+    this.shippingAddress,
     this.identityDocumentId,
     this.isSeller = false,
   });
@@ -38,6 +40,7 @@ class User {
     UserRole? role,
     DateTime? createdAt,
     String? bankAccount,
+    String? shippingAddress,
     String? identityDocumentId,
     bool? isSeller,
   }) {
@@ -51,6 +54,7 @@ class User {
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
       bankAccount: bankAccount ?? this.bankAccount,
+      shippingAddress: shippingAddress ?? this.shippingAddress,
       identityDocumentId: identityDocumentId ?? this.identityDocumentId,
       isSeller: isSeller ?? this.isSeller,
     );
@@ -78,6 +82,7 @@ class User {
           DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),
       bankAccount: json['bankAccount']?.toString(),
+      shippingAddress: json['shippingAddress']?.toString(),
       identityDocumentId: json['identityDocumentId']?.toString(),
       isSeller: json['isSeller'] == true,
     );
@@ -94,6 +99,7 @@ class User {
       'role': role.name,
       'createdAt': createdAt.toIso8601String(),
       'bankAccount': bankAccount,
+      'shippingAddress': shippingAddress,
       'identityDocumentId': identityDocumentId,
       'isSeller': isSeller,
     };

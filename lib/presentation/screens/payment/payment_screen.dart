@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/number_formatter.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class PaymentScreen extends ConsumerWidget {
   final String productName;
@@ -185,34 +187,28 @@ class PaymentScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    final products = ref.read(productProvider).products;
-                    final product = products.firstWhere(
-                      (p) => p.code == productCode,
-                    );
-                    await ref.read(orderProvider.notifier).createOrder(product);
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Orden creada exitosamente'),
-                      ),
-                    );
-                    context.go('/home');
-                  },
-                  icon: const Icon(Icons.payment),
-                  label: const Text(
-                    'Confirmar pago',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
+              MioPrimaryButton(
+                label: 'Confirmar pago',
+                onPressed: () async {
+                  final products = ref.read(productProvider).products;
+                  final product = products.firstWhere(
+                    (p) => p.code == productCode,
+                  );
+                  await ref.read(orderProvider.notifier).createOrder(product);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Orden creada exitosamente')),
+                  );
+                  context.go('/home');
+                },
+                showArrow: false,
+                showGlow: false,
+                filled: false,
+                outlinedBorderColor: AppColors.formBlue,
+                leading: Icon(
+                  Icons.payment_rounded,
+                  color: AppColors.formBlue.withValues(alpha: 0.9),
+                  size: 22,
                 ),
               ),
             ],

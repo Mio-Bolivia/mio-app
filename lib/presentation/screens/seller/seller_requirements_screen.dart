@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/constants/app_colors.dart';
 import '../../providers/seller_requirements_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../thumb_components/thumb_components.dart';
 
 class SellerRequirementsScreen extends ConsumerStatefulWidget {
   const SellerRequirementsScreen({super.key});
@@ -71,7 +73,8 @@ class _SellerRequirementsScreenState
                 isCompleted: requisitos.identityVerified,
                 isExpanded: _identityExpanded,
                 focusNode: _identityHeaderFocusNode,
-                onTap: () => setState(() => _identityExpanded = !_identityExpanded),
+                onTap: () =>
+                    setState(() => _identityExpanded = !_identityExpanded),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -126,28 +129,15 @@ class _SellerRequirementsScreenState
                       ),
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed:
-                            requisitos.identityVerified || _identityLoading
-                            ? null
-                            : _uploadIdentityDocument,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00C853),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: _identityLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Verificar identidad'),
-                      ),
+                    MioPrimaryButton(
+                      label: 'Verificar identidad',
+                      onPressed: requisitos.identityVerified || _identityLoading
+                          ? null
+                          : _uploadIdentityDocument,
+                      isLoading: _identityLoading,
+                      showArrow: false,
+                      showGlow: false,
+                      backgroundColor: AppColors.secondary,
                     ),
                   ],
                 ),
@@ -167,20 +157,14 @@ class _SellerRequirementsScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 12),
-                      TextFormField(
+                      MioTextField(
                         controller: _bankAccountController,
+                        label: 'Número de cuenta',
+                        hintText: 'Ingresa tu número de cuenta',
+                        prefixIcon: Icons.account_balance_outlined,
                         enabled:
                             !requisitos.bankAccountVerified && !_bankLoading,
                         keyboardType: TextInputType.number,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: InputDecoration(
-                          labelText: 'Numero de cuenta',
-                          hintText: 'Ingresa tu numero de cuenta',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          prefixIcon: const Icon(Icons.account_balance),
-                        ),
                         validator: (value) {
                           final accountNumber = value?.trim() ?? '';
                           if (accountNumber.isEmpty) {
@@ -192,70 +176,36 @@ class _SellerRequirementsScreenState
                           return null;
                         },
                       ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed:
-                              requisitos.bankAccountVerified || _bankLoading
-                              ? null
-                              : _saveBankAccount,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00C853),
-                            foregroundColor: Colors.white,
-                          ),
-                          child: _bankLoading
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text('Guardar cuenta'),
-                        ),
+                      const SizedBox(height: 14),
+                      MioPrimaryButton(
+                        label: 'Guardar cuenta',
+                        onPressed:
+                            requisitos.bankAccountVerified || _bankLoading
+                            ? null
+                            : _saveBankAccount,
+                        isLoading: _bankLoading,
+                        showArrow: false,
+                        showGlow: false,
+                        backgroundColor: AppColors.secondary,
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: requisitos.allCompleted && !_sellerLoading
-                      ? () => _becomeSeller(context, ref)
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C853),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[300],
-                    disabledForegroundColor: Colors.grey[600],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _sellerLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          requisitos.allCompleted
-                              ? 'Abrir Mi Tienda'
-                              : 'Completa los requisitos',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
+              MioPrimaryButton(
+                label: requisitos.allCompleted
+                    ? 'Abrir Mi Tienda'
+                    : 'Completa los requisitos',
+                onPressed: requisitos.allCompleted && !_sellerLoading
+                    ? () => _becomeSeller(context, ref)
+                    : null,
+                isLoading: _sellerLoading,
+                showArrow: false,
+                showGlow: false,
+                backgroundColor: requisitos.allCompleted
+                    ? AppColors.secondary
+                    : Colors.grey.shade400,
               ),
               const SizedBox(height: 16),
             ],
@@ -324,9 +274,9 @@ class _SellerRequirementsScreenState
             _identityExpanded = false;
           });
           FocusScope.of(context).requestFocus(_identityHeaderFocusNode);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Identidad verificada')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Identidad verificada')));
         }
       } else {
         if (mounted) {
@@ -354,9 +304,9 @@ class _SellerRequirementsScreenState
           .read(userProvider.notifier)
           .saveBankAccount(accountNumber);
       if (success) {
-        ref.read(sellerRequirementsProvider.notifier).setBankAccountVerified(
-          true,
-        );
+        ref
+            .read(sellerRequirementsProvider.notifier)
+            .setBankAccountVerified(true);
         if (mounted) {
           setState(() {
             _bankExpanded = false;
@@ -450,7 +400,9 @@ class _RequirementCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isCompleted ? const Color(0xFF00C853) : Colors.grey.shade300,
+              color: isCompleted
+                  ? const Color(0xFF00C853)
+                  : Colors.grey.shade300,
               width: isCompleted ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(12),
@@ -498,11 +450,8 @@ class _RequirementCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(
-                    trailingIcon,
-                    color: trailingColor,
-                  ),
-              ],
+                  Icon(trailingIcon, color: trailingColor),
+                ],
               ),
               AnimatedCrossFade(
                 firstChild: const SizedBox.shrink(),

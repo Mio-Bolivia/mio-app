@@ -3,7 +3,8 @@ import '../../presentation/screens/auth/splash_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/signup_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
-import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/account_screen.dart';
+import '../../presentation/screens/profile/edit_profile_screen.dart';
 import '../../presentation/screens/buyer/store_detail_screen.dart';
 import '../../presentation/screens/seller/seller_store_screen.dart';
 import '../../presentation/screens/seller/add_product_screen.dart';
@@ -39,7 +40,12 @@ final routerProvider = GoRouter(
     GoRoute(
       path: '/profile',
       name: RouteNames.profile,
-      builder: (context, state) => const ProfileScreen(),
+      builder: (context, state) => const AccountScreen(),
+    ),
+    GoRoute(
+      path: '/profile/edit',
+      name: RouteNames.editProfile,
+      builder: (context, state) => const EditProfileScreen(),
     ),
     GoRoute(
       path: '/store',
