@@ -1,0 +1,14 @@
+{
+  "permission": {
+    "skill": {
+      "caveman": "allow",
+      "caveman-compress": "allow",
+      "caveman-review": "allow",
+      "*": "allow",
+      "pr-review": "allow",
+      "internal-*": "deny",
+      "experimental-*": "ask"
+    }
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

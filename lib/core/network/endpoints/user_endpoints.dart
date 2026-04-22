@@ -1,4 +1,4 @@
-import '../api_endpoints.dart';
+import 'api_endpoints.dart';
 
 class UserEndpoints extends ApiEndpoints {
   static const myProfile = '/user/profile';

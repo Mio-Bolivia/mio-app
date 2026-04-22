@@ -8,6 +8,7 @@ import '../../core/network/api_client.dart';
 import '../../core/network/endpoints/auth_endpoints.dart';
 import '../../core/network/endpoints/user_endpoints.dart';
 import '../models/user_model.dart';
+import 'base_repository.dart';
 
 abstract class UserRepository {
   Future<User> login({required String email, required String password});
@@ -31,7 +32,6 @@ class MockUserRepository implements UserRepository {
     _currentUser = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       email: email,
-      password: password,
       role: UserRole.both,
       createdAt: DateTime.now(),
     );
@@ -46,7 +46,6 @@ class MockUserRepository implements UserRepository {
     _currentUser = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       email: email,
-      password: password,
       role: UserRole.both,
       createdAt: DateTime.now(),
     );
@@ -81,7 +80,7 @@ class MockUserRepository implements UserRepository {
   Future<void> saveBankAccount(String accountNumber) async {}
 }
 
-class ApiUserRepository implements UserRepository {
+class ApiUserRepository extends BaseRepository implements UserRepository {
   final ApiClient _apiClient;
   final SecureTokenStorage _tokenStorage;
 
@@ -101,7 +100,7 @@ class ApiUserRepository implements UserRepository {
       data: {'email': email, 'password': password},
     );
     await _persistTokenIfPresent(response);
-    final payload = _extractMapPayload(response);
+    final payload = extractMapPayload(response);
     return User.fromJson(payload);
   }
 
@@ -115,7 +114,7 @@ class ApiUserRepository implements UserRepository {
       data: {'email': email, 'password': password},
     );
     await _persistTokenIfPresent(response);
-    final payload = _extractMapPayload(response);
+    final payload = extractMapPayload(response);
     return User.fromJson(payload);
   }
 
@@ -126,16 +125,17 @@ class ApiUserRepository implements UserRepository {
     String? bankAccount,
     String? shippingAddress,
   }) async {
+    final data = <String, dynamic>{};
+    if (name != null) data['name'] = name;
+    if (phone != null) data['phone'] = phone;
+    if (bankAccount != null) data['bankAccount'] = bankAccount;
+    if (shippingAddress != null) data['shippingAddress'] = shippingAddress;
+
     final response = await _apiClient.post<Map<String, dynamic>>(
       UserEndpoints.updateProfile,
-      data: {
-        'name': ?name,
-        'phone': ?phone,
-        'bankAccount': ?bankAccount,
-        'shippingAddress': ?shippingAddress,
-      },
+      data: data,
     );
-    final payload = _extractMapPayload(response);
+    final payload = extractMapPayload(response);
     return User.fromJson(payload);
   }
 
@@ -156,7 +156,7 @@ class ApiUserRepository implements UserRepository {
       UserEndpoints.identityDocument,
       formData,
     );
-    final payload = _extractMapPayload(response);
+    final payload = extractMapPayload(response);
     return payload['id']?.toString() ?? '';
   }
 
@@ -167,20 +167,11 @@ class ApiUserRepository implements UserRepository {
       data: {'accountNumber': accountNumber},
     );
   }
-
-  Map<String, dynamic> _extractMapPayload(Map<String, dynamic> response) {
-    final data = response['data'];
-    if (data is Map<String, dynamic>) return data;
-    return response;
-  }
 }
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   if (AppConstants.useMockRepositories) {
     return MockUserRepository();
   }
-  return ApiUserRepository(
-    ApiClient.instance,
-    SecureTokenStorage.instance,
-  );
+  return ApiUserRepository(ApiClient.instance, SecureTokenStorage.instance);
 });

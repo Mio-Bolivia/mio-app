@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/validators/email_validator.dart';
+import '../../../core/utils/validators/password_validator.dart';
 import '../../providers/user_provider.dart';
 import '../../thumb_components/thumb_components.dart';
 import 'terms_screen.dart';
@@ -96,17 +98,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresa tu email';
-                    }
-                    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                    if (!emailRegex.hasMatch(value)) {
-                      return 'Email no válido';
-                    }
-                    return null;
-                  },
+                  validator: EmailValidator.validate,
                 ),
+
                 const SizedBox(height: 18),
                 MioTextField(
                   controller: _passwordController,
@@ -125,12 +119,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       color: Colors.grey.shade600,
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresa tu contraseña';
-                    }
-                    return null;
-                  },
+                  validator: PasswordValidator.validate,
                 ),
                 const SizedBox(height: 18),
                 Row(

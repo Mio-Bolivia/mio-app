@@ -1,4 +1,4 @@
-import '../api_endpoints.dart';
+import 'api_endpoints.dart';
 
 class AuthEndpoints extends ApiEndpoints {
   static const login = '/auth/login';

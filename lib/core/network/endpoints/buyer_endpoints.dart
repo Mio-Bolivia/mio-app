@@ -1,4 +1,4 @@
-import '../api_endpoints.dart';
+import 'api_endpoints.dart';
 
 class BuyerEndpoints extends ApiEndpoints {
   static const myFavorites = '/buyer/favorites';

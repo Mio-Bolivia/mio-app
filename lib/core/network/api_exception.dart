@@ -25,20 +25,6 @@ class ServerException extends AppException {
   });
 }
 
-class CacheException extends AppException {
-  const CacheException({super.message = 'Cache error occurred', super.code});
-}
-
-class ValidationException extends AppException {
-  final Map<String, String>? fieldErrors;
-
-  const ValidationException({
-    super.message = 'Validation error occurred',
-    super.code,
-    this.fieldErrors,
-  });
-}
-
 class UnauthorizedException extends AppException {
   const UnauthorizedException({
     super.message = 'Unauthorized access',

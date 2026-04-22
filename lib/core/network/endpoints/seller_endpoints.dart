@@ -1,7 +1,7 @@
-import '../api_endpoints.dart';
+import 'api_endpoints.dart';
 
 class SellerEndpoints extends ApiEndpoints {
-  static const myStores = '/seller/stores';
+  static const myStores = '/stores';
   static const createStore = '/seller/stores/create';
   static const updateStore = '/seller/stores/{id}/update';
   static const deleteStore = '/seller/stores/{id}/delete';

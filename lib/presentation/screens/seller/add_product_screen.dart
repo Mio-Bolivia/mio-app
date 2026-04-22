@@ -1,10 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../thumb_components/thumb_components.dart';
+import '../../widgets/product_form_header.dart';
+import '../../widgets/product_form_section.dart';
+import '../../widgets/product_image_picker.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -89,236 +91,80 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00C853).withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
+                ProductFormHeader(),
+                ProductFormSection(
+                  title: 'Información básica',
+                  child: Column(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(
-                            0xFF00C853,
-                          ).withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.inventory_2_outlined,
-                          color: Color(0xFF00C853),
-                        ),
+                      MioTextField(
+                        controller: _nameController,
+                        label: 'Nombre del producto',
+                        hintText: 'Ej: Camiseta deportiva unisex',
+                        prefixIcon: Icons.sell_outlined,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Ingresa el nombre del producto';
+                          }
+                          if (value.trim().length < 3) {
+                            return 'El nombre debe tener al menos 3 caracteres';
+                          }
+                          return null;
+                        },
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Crea una publicacion atractiva para vender mas rapido.',
-                          style: TextStyle(
-                            color: Colors.grey[800],
-                            fontSize: 14,
-                          ),
-                        ),
+                      const SizedBox(height: 18),
+                      MioTextField(
+                        controller: _descriptionController,
+                        label: 'Descripción',
+                        hintText:
+                            'Color, talla, material y demás detalles importantes.',
+                        prefixIcon: Icons.description_outlined,
+                        maxLines: 4,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Ingresa una descripcion';
+                          }
+                          if (value.trim().length < 20) {
+                            return 'Agrega mas detalle para ayudar al comprador';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'Informacion basica',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                ProductFormSection(
+                  title: 'Fotos del producto',
+                  subtitle: 'Agrega una o más fotos',
+                  child: ProductImagePicker(
+                    images: _imagenes,
+                    onPickImages: _pickImages,
+                    onTakePhoto: _takePhoto,
+                    onRemoveImage: _removeImage,
                   ),
                 ),
-                const SizedBox(height: 8),
-                MioTextField(
-                  controller: _nameController,
-                  label: 'Nombre del producto',
-                  hintText: 'Ej: Camiseta deportiva unisex',
-                  prefixIcon: Icons.sell_outlined,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Ingresa el nombre del producto';
-                    }
-                    if (value.trim().length < 3) {
-                      return 'El nombre debe tener al menos 3 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 18),
-                MioTextField(
-                  controller: _descriptionController,
-                  label: 'Descripción',
-                  hintText:
-                      'Color, talla, material y demás detalles importantes.',
-                  prefixIcon: Icons.description_outlined,
-                  maxLines: 4,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Ingresa una descripcion';
-                    }
-                    if (value.trim().length < 20) {
-                      return 'Agrega mas detalle para ayudar al comprador';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  'Fotos del producto',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                ProductFormSection(
+                  title: 'Precio del producto',
+                  child: MioTextField(
+                    controller: _precioController,
+                    label: 'Precio',
+                    hintText: '0.00',
+                    prefixText: 'Bs. ',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ingresa el precio';
+                      }
+                      final precio = double.tryParse(value);
+                      if (precio == null || precio <= 0) {
+                        return 'Precio inválido';
+                      }
+                      return null;
+                    },
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Agrega una o más fotos',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: 120,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _imagenes.length < 5
-                          ? Container(
-                              width: 100,
-                              height: 100,
-                              margin: const EdgeInsets.only(right: 8),
-                              child: InkWell(
-                                onTap: _pickImages,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add_photo_alternate,
-                                        size: 32,
-                                        color: Colors.grey[600],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Galería',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
-                      if (_imagenes.isNotEmpty)
-                        Container(
-                          width: 100,
-                          height: 100,
-                          margin: const EdgeInsets.only(right: 8),
-                          child: InkWell(
-                            onTap: _takePhoto,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.camera_alt,
-                                    size: 32,
-                                    color: Colors.grey[600],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Cámara',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ...List.generate(_imagenes.length, (index) {
-                        return Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              margin: const EdgeInsets.only(right: 8),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  File(_imagenes[index].path),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 12,
-                              child: GestureDetector(
-                                onTap: () => _removeImage(index),
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Precio del producto',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                MioTextField(
-                  controller: _precioController,
-                  label: 'Precio',
-                  hintText: '0.00',
-                  prefixText: 'Bs. ',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Ingresa el precio';
-                    }
-                    final precio = double.tryParse(value);
-                    if (precio == null || precio <= 0) {
-                      return 'Precio inválido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 36),
                 MioPrimaryButton(
                   label: 'Agregar a mi tienda',
                   onPressed: _addProduct,

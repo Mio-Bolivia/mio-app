@@ -3,6 +3,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/endpoints/seller_endpoints.dart';
 import '../models/store_model.dart';
+import 'base_repository.dart';
 import 'mock/mock_seed_data.dart';
 
 abstract class StoreRepository {
@@ -16,7 +17,7 @@ class MockStoreRepository implements StoreRepository {
   }
 }
 
-class ApiStoreRepository implements StoreRepository {
+class ApiStoreRepository extends BaseRepository implements StoreRepository {
   final ApiClient _apiClient;
 
   ApiStoreRepository(this._apiClient);
@@ -24,21 +25,8 @@ class ApiStoreRepository implements StoreRepository {
   @override
   Future<List<Store>> getStores() async {
     final response = await _apiClient.get<dynamic>(SellerEndpoints.myStores);
-    final payload = _extractListPayload(response);
+    final payload = extractListPayload(response);
     return payload.map((item) => Store.fromJson(item)).toList();
-  }
-
-  List<Map<String, dynamic>> _extractListPayload(dynamic response) {
-    if (response is List) {
-      return response.whereType<Map<String, dynamic>>().toList();
-    }
-    if (response is Map<String, dynamic>) {
-      final data = response['data'];
-      if (data is List) {
-        return data.whereType<Map<String, dynamic>>().toList();
-      }
-    }
-    return const [];
   }
 }
 

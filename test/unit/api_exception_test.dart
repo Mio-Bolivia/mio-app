@@ -45,14 +45,4 @@ void main() {
       expect(exception.code, equals(404));
     });
   });
-
-  group('ValidationException', () {
-    test('creates with fieldErrors', () {
-      const exception = ValidationException(
-        message: 'Validation failed',
-        fieldErrors: {'phone': 'Required'},
-      );
-      expect(exception.fieldErrors?['phone'], equals('Required'));
-    });
-  });
 }

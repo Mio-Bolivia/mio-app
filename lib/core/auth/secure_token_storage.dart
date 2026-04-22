@@ -1,6 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Singleton backed by [FlutterSecureStorage] (Keychain / Keystore).
 class SecureTokenStorage {
   SecureTokenStorage._();
 
@@ -12,7 +11,6 @@ class SecureTokenStorage {
 
   String? _memoryToken;
 
-  /// Loads the token from secure storage into memory (call at app startup).
   Future<void> preload() async {
     await readAccessToken();
   }

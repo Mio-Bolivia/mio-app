@@ -58,7 +58,7 @@ windows/flutter/generated_config
 
 # Project specific
 .agents/
-API_ENDPOINTS.md
+*.md
 
 # System specific
 **/*.DS_Store

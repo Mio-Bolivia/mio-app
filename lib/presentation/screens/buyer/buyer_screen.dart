@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/models/store_model.dart';
 import '../../providers/store_provider.dart';
+import '../../providers/product_provider.dart';
 import '../../thumb_components/thumb_components.dart';
 
 class BuyerScreen extends ConsumerWidget {
@@ -12,7 +13,7 @@ class BuyerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final storesAsync = ref.watch(storesProvider);
-    final products = ref.watch(productsProvider);
+    final products = ref.watch(displayedProductsProvider);
 
     return storesAsync.when(
       data: (stores) {

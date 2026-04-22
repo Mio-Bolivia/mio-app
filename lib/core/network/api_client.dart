@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../auth/secure_token_storage.dart';
 import 'api_exception.dart';
-import 'api_endpoints.dart';
+import 'endpoints/api_endpoints.dart';
 
 class ApiClient {
   static ApiClient? _instance;
@@ -124,6 +124,17 @@ class ApiClient {
   Future<T> delete<T>(String path) async {
     try {
       final response = await _dio.delete(path);
+      return response.data as T;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    } catch (e) {
+      throw NetworkException(message: e.toString());
+    }
+  }
+
+  Future<T> patch<T>(String path, {dynamic data}) async {
+    try {
+      final response = await _dio.patch(path, data: data);
       return response.data as T;
     } on DioException catch (e) {
       throw _handleDioError(e);

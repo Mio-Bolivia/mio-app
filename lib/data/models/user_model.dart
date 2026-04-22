@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 class User {
   final String id;
   final String email;
-  final String password;
   final String? name;
   final String? phone;
   final String? avatarUrl;
@@ -18,7 +17,6 @@ class User {
   const User({
     required this.id,
     required this.email,
-    required this.password,
     required this.role,
     required this.createdAt,
     this.name,
@@ -33,7 +31,6 @@ class User {
   User copyWith({
     String? id,
     String? email,
-    String? password,
     String? name,
     String? phone,
     String? avatarUrl,
@@ -47,7 +44,6 @@ class User {
     return User(
       id: id ?? this.id,
       email: email ?? this.email,
-      password: password ?? this.password,
       name: name ?? this.name,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
@@ -73,7 +69,6 @@ class User {
     return User(
       id: json['id']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
-      password: json['password']?.toString() ?? '',
       name: json['name']?.toString(),
       phone: json['phone']?.toString(),
       avatarUrl: json['avatarUrl']?.toString(),
@@ -92,7 +87,6 @@ class User {
     return {
       'id': id,
       'email': email,
-      'password': password,
       'name': name,
       'phone': phone,
       'avatarUrl': avatarUrl,

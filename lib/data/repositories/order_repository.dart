@@ -4,10 +4,14 @@ import '../../core/network/api_client.dart';
 import '../../core/network/endpoints/order_endpoints.dart';
 import '../models/order_model.dart';
 import '../models/product_model.dart';
+import 'base_repository.dart';
 
 abstract class OrderRepository {
   Future<List<Order>> getOrders();
   Future<Order> createOrder(Product product);
+  Future<Order> getOrderDetail(String orderId);
+  Future<void> confirmPayment(String orderId, Map<String, dynamic> paymentData);
+  Future<void> cancelOrder(String orderId);
 }
 
 class MockOrderRepository implements OrderRepository {
@@ -29,9 +33,38 @@ class MockOrderRepository implements OrderRepository {
     _orders.add(order);
     return order;
   }
+
+  @override
+  Future<Order> getOrderDetail(String orderId) async {
+    return _orders.firstWhere(
+      (order) => order.id == orderId,
+      orElse: () => throw Exception('Order not found'),
+    );
+  }
+
+  @override
+  Future<void> confirmPayment(
+    String orderId,
+    Map<String, dynamic> paymentData,
+  ) async {
+    final index = _orders.indexWhere((order) => order.id == orderId);
+    if (index != -1) {
+      final order = _orders[index];
+      _orders[index] = order.copyWith(status: OrderStatus.paid);
+    }
+  }
+
+  @override
+  Future<void> cancelOrder(String orderId) async {
+    final index = _orders.indexWhere((order) => order.id == orderId);
+    if (index != -1) {
+      final order = _orders[index];
+      _orders[index] = order.copyWith(status: OrderStatus.cancelled);
+    }
+  }
 }
 
-class ApiOrderRepository implements OrderRepository {
+class ApiOrderRepository extends BaseRepository implements OrderRepository {
   final ApiClient _apiClient;
 
   ApiOrderRepository(this._apiClient);
@@ -39,7 +72,7 @@ class ApiOrderRepository implements OrderRepository {
   @override
   Future<List<Order>> getOrders() async {
     final response = await _apiClient.get<dynamic>(OrderEndpoints.myOrders);
-    final payload = _extractListPayload(response);
+    final payload = extractListPayload(response);
     return payload.map((item) => Order.fromJson(item)).toList();
   }
 
@@ -49,30 +82,38 @@ class ApiOrderRepository implements OrderRepository {
       OrderEndpoints.createOrder,
       data: {'productCode': product.code},
     );
-    final payload = _extractMapPayload(response);
+    final payload = extractMapPayload(response);
     if (!payload.containsKey('product')) {
       payload['product'] = product.toJson();
     }
     return Order.fromJson(payload);
   }
 
-  List<Map<String, dynamic>> _extractListPayload(dynamic response) {
-    if (response is List) {
-      return response.whereType<Map<String, dynamic>>().toList();
-    }
-    if (response is Map<String, dynamic>) {
-      final data = response['data'];
-      if (data is List) {
-        return data.whereType<Map<String, dynamic>>().toList();
-      }
-    }
-    return const [];
+  @override
+  Future<Order> getOrderDetail(String orderId) async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      OrderEndpoints.orderDetail.replaceFirst('{id}', orderId),
+    );
+    final payload = extractMapPayload(response);
+    return Order.fromJson(payload);
   }
 
-  Map<String, dynamic> _extractMapPayload(Map<String, dynamic> response) {
-    final data = response['data'];
-    if (data is Map<String, dynamic>) return data;
-    return response;
+  @override
+  Future<void> confirmPayment(
+    String orderId,
+    Map<String, dynamic> paymentData,
+  ) async {
+    await _apiClient.post(
+      OrderEndpoints.confirmPayment.replaceFirst('{id}', orderId),
+      data: paymentData,
+    );
+  }
+
+  @override
+  Future<void> cancelOrder(String orderId) async {
+    await _apiClient.delete(
+      OrderEndpoints.cancelOrder.replaceFirst('{id}', orderId),
+    );
   }
 }
 

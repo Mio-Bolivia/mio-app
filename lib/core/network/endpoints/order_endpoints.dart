@@ -1,4 +1,4 @@
-import '../api_endpoints.dart';
+import 'api_endpoints.dart';
 
 class OrderEndpoints extends ApiEndpoints {
   static const createOrder = '/orders/create';
